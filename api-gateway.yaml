@@ -22,6 +22,21 @@ data:
                 }
             },
             "endpoints": [
+                {
+                    "endpoint": "/health",
+                    "extra_config": {
+                        "proxy": {
+                            "static": {
+                                "data": { "hello": "world" },
+                                "strategy": "always"
+                            }
+                        }
+                    },
+                    "backend": [{
+                        "url_pattern": "/__health",
+                        "host": [ "http://localhost:8080" ]
+                    }]
+                }
             ]
         }
 ---

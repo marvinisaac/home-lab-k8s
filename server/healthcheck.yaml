@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-    name: gateway-config
+    name: server-healthcheck-config
     namespace: staging
 data:
     krakend.json: |
@@ -10,9 +10,9 @@ data:
             "extra_config": {
                 "github_com/devopsfaith/krakend-cors": {
                     "allow_credentials": false,
-                    "allow_headers": [ "Accept-Language" ],
-                    "allow_methods": [ "GET", "HEAD" ],
-                    "allow_origins": [ "*" ],
+                    "allow_headers": ["Accept-Language"],
+                    "allow_methods": ["GET", "HEAD"],
+                    "allow_origins": ["*"],
                     "debug": false,
                     "expose_headers": [
                         "Content-Length",
@@ -21,46 +21,46 @@ data:
                     "max_age": "1h"
                 }
             },
-            "endpoints": [
-                {
-                    "endpoint": "/health",
-                    "extra_config": {
-                        "proxy": {
-                            "static": {
-                                "data": { "hello": "world" },
-                                "strategy": "always"
+            "endpoints": [{
+                "endpoint": "/health",
+                "backend": [{
+                    "host": ["http://localhost:8080"],
+                    "url_pattern": "/__health"
+                }],
+                "extra_config": {
+                    "github.com/devopsfaith/krakend/proxy": {
+                        "static": {
+                            "strategy": "always",
+                            "data": {
+                                "hello": "world"
                             }
                         }
-                    },
-                    "backend": [{
-                        "url_pattern": "/__health",
-                        "host": [ "http://localhost:8080" ]
-                    }]
+                    }
                 }
-            ]
+            }]
         }
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: gateway
+    name: server-healthcheck
     namespace: staging
 spec:
     selector:
         matchLabels:
-            app: gateway
+            app: server-healthcheck
     replicas: 1
     template:
         metadata:
             labels:
-                app: gateway
+                app: server-healthcheck
         spec:
             volumes:
-            -   name: gateway-volume
+            -   name: server-healthcheck-volume
                 configMap:
-                    name: gateway-config
+                    name: server-healthcheck-config
             containers:
-            -   name: gateway
+            -   name: server-healthcheck
                 image: devopsfaith/krakend:1.4.1-alpine
                 ports:
                 -   containerPort: 8080
@@ -72,19 +72,19 @@ spec:
                         cpu: "0.1m"
                         memory: "128Mi"
                 volumeMounts:
-                -   name: gateway-volume
+                -   name: server-healthcheck-volume
                     mountPath: /etc/krakend/krakend.json
                     subPath: krakend.json
 ---
 apiVersion: v1
 kind: Service
 metadata:
-    name: gateway-service
+    name: server-healthcheck-service
     namespace: staging
 spec:
     type: NodePort
     selector:
-        app: gateway
+        app: server-healthcheck
     ports:
       -   port: 8080
           nodePort: 30080

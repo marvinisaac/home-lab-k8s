@@ -68,7 +68,7 @@ spec:
                     -   name: VIRTUAL_HOST
                         value: _
             -   name: php
-                image: ghcr.io/marvinisaac/marvinisaac-music/marvinisaac-music:v0.1.1
+                image: ghcr.io/marvinisaac/marvinisaac-music/marvinisaac-music:v0.1.10
                 ports:
                 -   containerPort: 9000
                 resources:

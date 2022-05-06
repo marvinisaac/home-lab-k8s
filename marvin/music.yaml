@@ -48,7 +48,7 @@ spec:
                 resources:
                     limits:
                         cpu: "100m"
-                        memory: "128Mi"
+                        memory: "64Mi"
                 env:
                     -   name: PHP_HOSTNAME
                         value: marvin-music-php
@@ -60,7 +60,7 @@ spec:
                 -   containerPort: 9000
                 resources:
                     limits:
-                        cpu: "1"
+                        cpu: "200m"
                         memory: "128Mi"
                 env:
                     -   name: APP_DEBUG

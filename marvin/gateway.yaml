@@ -69,8 +69,8 @@ spec:
                 -   containerPort: 8080
                 resources:
                     limits:
-                        cpu: "1m"
-                        memory: "128Mi"
+                        cpu: "10m"
+                        memory: "64Mi"
                 volumeMounts:
                 -   name: marvin-gateway-volume
                     mountPath: /etc/krakend/krakend.json

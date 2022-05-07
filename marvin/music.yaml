@@ -68,7 +68,7 @@ spec:
                     -   name: VIRTUAL_HOST
                         value: _
             -   name: php
-                image: ghcr.io/marvinisaac/marvinisaac-music/marvinisaac-music:v0.1.10
+                image: ghcr.io/marvinisaac/marvinisaac-music/marvinisaac-music:v0.1.11
                 ports:
                 -   containerPort: 9000
                 resources:
@@ -102,3 +102,59 @@ spec:
                             secretKeyRef:
                                 name: marvin-music-secret
                                 key: SPOTIFY_REFRESH_TOKEN
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+    name: marvin-music-cron
+    namespace: staging
+spec:
+    # This task runs every hour
+    schedule: "0 * * * *"
+    jobTemplate:
+        spec:
+            template:
+                spec:
+                    # Portainer's internal alias for GitHub registry
+                    imagePullSecrets:
+                    -   name: registry-1
+                    restartPolicy: Never
+                    containers:
+                    -   name: php
+                        image: ghcr.io/marvinisaac/marvinisaac-music/marvinisaac-music:v0.1.11
+                        command:
+                            - /bin/sh
+                            - -c
+                            - "php bin/console app:get-played"
+                        resources:
+                            limits:
+                                cpu: "200m"
+                                memory: "128Mi"
+                        env:
+                            -   name: APP_DEBUG
+                                value: "0"
+                            -   name: APP_ENV
+                                value: prod
+                            -   name: APP_SECRET
+                                valueFrom:
+                                    secretKeyRef:
+                                        name: marvin-music-secret
+                                        key: APP_SECRET
+
+                            -   name: DATABASE_URL
+                                valueFrom:
+                                    secretKeyRef:
+                                        name: marvin-music-secret
+                                        key: DATABASE_URL
+
+                            -   name: SPOTIFY_ENCODED_SECRET
+                                valueFrom:
+                                    secretKeyRef:
+                                        name: marvin-music-secret
+                                        key: SPOTIFY_ENCODED_SECRET
+                            -   name: SPOTIFY_REFRESH_TOKEN
+                                valueFrom:
+                                    secretKeyRef:
+                                        name: marvin-music-secret
+                                        key: SPOTIFY_REFRESH_TOKEN
+
